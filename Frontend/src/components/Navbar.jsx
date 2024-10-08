@@ -18,6 +18,9 @@ export default function Navbar() {
           <li className='relative p-2 cursor-pointer hover:after:w-full after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-width after:duration-300'>
             <Link to="/invest">Invest</Link>
           </li>
+          <li className='relative p-2 cursor-pointer hover:after:w-full after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-width after:duration-300'>
+            <Link to="/add-to-cart">Add to Cart</Link>
+          </li>
         </ul>
       </div>
     </div>

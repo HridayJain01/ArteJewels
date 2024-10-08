@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Carousel } from 'react-bootstrap';
+import { motion } from 'framer-motion';
 import JewelryCard from './reusables/JewelryCard';
 import homeEarringImage from '../assets/images/home-earring.png';
 import homePendantImage from '../assets/images/home-pendant.png';
@@ -33,6 +34,8 @@ const diamondItems = [
 const Store = () => {
     const [show, setShow] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [cartItems, setCartItems] = useState([]);
+    const [totalValue, setTotalValue] = useState(0);
 
     const handleClose = () => setShow(false);
     const handleShow = (product) => {
@@ -40,11 +43,22 @@ const Store = () => {
         setShow(true);
     };
 
+    const handleAddToCart = (item) => {
+        setCartItems([...cartItems, item]);
+        setTotalValue(totalValue + item.rate);
+    };
+
+    const handleRemoveFromCart = (index) => {
+        const itemToRemove = cartItems[index];
+        setCartItems(cartItems.filter((_, i) => i !== index));
+        setTotalValue(totalValue - itemToRemove.rate);
+    };
+
     return (
         <div className="bg-purple-700-100 min-h-screen p-8 font-sans">
             <h1 className="text-8xl font-bold text-center mb-8">Our Jewelry Collections</h1>
 
-            <div className="mt-[6rem] p-12 mb-12">
+            <div id="earring-collection" className="mt-[6rem] p-12 mb-12">
                 <h2 className="flex text-6xl font-semibold mb-4 justify-center">Earring Collection</h2>
                 <div className="flex flex-wrap justify-center">
                     {earringItems.map((item, index) => (
@@ -53,13 +67,14 @@ const Store = () => {
                                 title={item.title}
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
+                                handleAddToCart={handleAddToCart}
                             />
                         </div>
                     ))}
                 </div>
             </div>
 
-            <div className="mb-12">
+            <div id="pendant-collection" className="mb-12">
                 <h2 className="flex text-6xl justify-center font-semibold mb-4">Pendant Collection</h2>
                 <div className="flex flex-wrap justify-center">
                     {pendantItems.map((item, index) => (
@@ -68,13 +83,14 @@ const Store = () => {
                                 title={item.title}
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
+                                handleAddToCart={handleAddToCart}
                             />
                         </div>
                     ))}
                 </div>
             </div>
 
-            <div className="mb-12">
+            <div id="chain-collection" className="mb-12">
                 <h2 className="flex justify-center text-6xl font-semibold mb-4">Diamond Collection</h2>
                 <div className="flex flex-wrap justify-center">
                     {diamondItems.map((item, index) => (
@@ -83,6 +99,7 @@ const Store = () => {
                                 title={item.title}
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
+                                handleAddToCart={handleAddToCart}
                             />
                         </div>
                     ))}

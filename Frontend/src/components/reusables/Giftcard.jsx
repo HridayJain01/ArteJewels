@@ -23,31 +23,62 @@ export default function Giftcard() {
           <motion.div
             className="absolute inset-0 bg-[#2a264e] text-white rounded-lg shadow-lg p-6 backface-hidden bg-cards-pattern bg-cover bg-center"
             style={{ backfaceVisibility: "hidden" }}
+            initial={{ opacity: 0, x: -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <div className="flex justify-between items-center mb-6">
+            <motion.div
+              className="flex justify-between items-center mb-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
               <div className="text-4xl font-semibold">Happy Diwali, Hriday Jain</div>
-            </div>
-            <div className="mb-6">
+            </motion.div>
+            <motion.div
+              className="mb-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
               <div className="text-2xl font-mono mt-12 tracking-widest">
                 1234 5678 9012 3456
               </div>
-            </div>
-            <div className="flex justify-between items-center mt -10 mb-6">
+            </motion.div>
+            <motion.div
+              className="flex justify-between items-center mt-10 mb-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+            >
               <div>
                 <div className="text-lg font-semibold">Worth Rs 5000</div>
               </div>
-              <div className="flex flex-col items-center">
+              <motion.div
+                className="flex flex-col items-center"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+              >
                 <QRCode value="Rs 500" size={64} />
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
           <motion.div
             className="absolute inset-0 bg-gray-800 text-white rounded-lg shadow-lg p-6 backface-hidden"
             style={{ backfaceVisibility: "hidden", rotateY: 180 }}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <div className="flex flex-col justify-center items-center h-full">
+            <motion.div
+              className="flex flex-col justify-center items-center h-full"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
               <QRCode value="Rs 500" size={128} />
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </motion.div>
