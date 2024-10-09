@@ -11,7 +11,7 @@ import AuthPage from './components/AuthPage';
 
 export default function App() {
   return (
-    /*<Router>
+    <Router>
       <div className='bg-custom-gradient min-h-screen'>
         <Navbar />
         <Routes>
@@ -22,6 +22,6 @@ export default function App() {
           <Route path="/" element={<Home />} />
         </Routes>
       </div>
-    </Router>*/
+    </Router>
   );
 }
