@@ -1,6 +1,6 @@
 // src/pages/OrderList.jsx
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Box,
   Button,
@@ -21,34 +21,25 @@ import {
 import PendingOrders from "../components/PendingOrders";
 
 const OrderList = () => {
-  // Sample orders data
-  const [orders, setOrders] = useState([
-    {
-      id: 1,
-      customer: "Alice",
-      date: "2024-09-01",
-      total: 120.0,
-      status: "Shipped",
-    },
-    {
-      id: 2,
-      customer: "Bob",
-      date: "2024-09-02",
-      total: 200.0,
-      status: "Pending",
-    },
-    {
-      id: 3,
-      customer: "Charlie",
-      date: "2024-09-03",
-      total: 150.0,
-      status: "Delivered",
-    },
-  ]);
-  const [filteredOrders, setFilteredOrders] = useState(orders);
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState("");
+
+  // Fetch orders from backend
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/api/orders');
+        setOrders(response.data);
+        setFilteredOrders(response.data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+    fetchOrders();
+  }, []);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -67,25 +58,42 @@ const OrderList = () => {
     );
   };
 
-  const handleDeleteOrder = (id) => {
-    const updatedOrders = filteredOrders.filter((order) => order.id !== id);
-    setFilteredOrders(updatedOrders);
+  const handleDeleteOrder = async (id) => {
+    try {
+      await axios.delete(`/api/orders/${id}`);
+      setFilteredOrders((prev) => prev.filter((order) => order._id !== id));
+    } catch (error) {
+      console.error("Error deleting order:", error);
+    }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    const updatedOrders = orders.map((order) =>
-      order.id === id ? { ...order, status: newStatus } : order
-    );
-    setOrders(updatedOrders);
-    setFilteredOrders(
-      statusFilter
-        ? updatedOrders.filter((order) => order.status === statusFilter)
-        : updatedOrders
-    );
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      const response = await axios.put(`/api/orders/${id}`, { status: newStatus });
+      const updatedOrder = response.data;
+      setOrders((prev) =>
+        prev.map((order) => (order._id === id ? updatedOrder : order))
+      );
+      setFilteredOrders(
+        statusFilter
+          ? orders.filter((order) => order.status === statusFilter)
+          : orders
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   };
 
-  // Extract pending orders
   const pendingOrders = orders.filter((order) => order.status === "Pending");
+  const shortenId = (id) => {
+    return id.substring(0, 4); // Adjust the length as needed
+  };
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, options);
+  };
+
 
   return (
     <Box className="p-4">
@@ -119,6 +127,7 @@ const OrderList = () => {
               <TableCell className="text-customPurple-900">Order ID</TableCell>
               <TableCell className="text-customPurple-900">Customer</TableCell>
               <TableCell className="text-customPurple-900">Date</TableCell>
+              <TableCell className="text-customPurple-900">Item</TableCell>
               <TableCell className="text-customPurple-900">Total</TableCell>
               <TableCell className="text-customPurple-900">Status</TableCell>
               <TableCell className="text-customPurple-900">Actions</TableCell>
@@ -128,17 +137,24 @@ const OrderList = () => {
             {filteredOrders
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((order) => (
-                <TableRow key={order.id} className="hover:bg-customPurple-200">
-                  <TableCell>{order.id}</TableCell>
+                <TableRow key={order._id} className="hover:bg-customPurple-200">
+                  <TableCell>{shortenId(order._id)}</TableCell>
                   <TableCell>{order.customer}</TableCell>
-                  <TableCell>{order.date}</TableCell>
-                  <TableCell>${order.total}</TableCell>
+                  <TableCell>{formatDate(order.date)}</TableCell>
+                  <TableCell>
+  {order.items.map((item, idx) => (
+    <div key={idx}>
+      {`(${item.quantity}) ${item.title} - $${item.price.toFixed(2)}`}<br />
+    </div>
+  ))}
+</TableCell>
+               <TableCell>${order.total}</TableCell>
                   <TableCell>
                     <FormControl variant="outlined" className="min-w-[120px]">
                       <Select
                         value={order.status}
                         onChange={(e) =>
-                          handleStatusChange(order.id, e.target.value)
+                          handleStatusChange(order._id, e.target.value)
                         }
                       >
                         <MenuItem value="Pending">Pending</MenuItem>
@@ -151,7 +167,7 @@ const OrderList = () => {
                     <Button
                       variant="contained"
                       color="error"
-                      onClick={() => handleDeleteOrder(order.id)}
+                      onClick={() => handleDeleteOrder(order._id)}
                     >
                       Delete
                     </Button>
