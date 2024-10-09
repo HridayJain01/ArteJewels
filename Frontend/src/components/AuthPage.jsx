@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import { UserContext } from '../context/UserContext.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -12,6 +13,7 @@ const AuthPage = () => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const navigate = useNavigate();
+  const { login } = useContext(UserContext);
 
   const handleToggle = () => {
     setIsLogin(!isLogin);
@@ -38,6 +40,7 @@ const AuthPage = () => {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        login(data.user);
         toast.success(`Welcome ${isLogin ? 'back' : ''} to Arte Jewels, ${data.user.name}!`);
         setTimeout(() => navigate('/'), 2000);
       } else {

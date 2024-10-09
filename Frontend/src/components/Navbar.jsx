@@ -1,21 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/UserContext.jsx';
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
+  const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
+    logout();
     navigate('/');
   };
 
@@ -41,7 +33,7 @@ export default function Navbar() {
           {user ? (
             <>
               <li className='relative p-2 cursor-pointer hover:after:w-full after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-width after:duration-300'>
-                <Link to="/account">Welcome, {user.name}</Link>
+                <Link to="/account">{user.name}</Link>
               </li>
               <li className='relative p-2 cursor-pointer hover:after:w-full after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-width after:duration-300'>
                 <button onClick={handleLogout}>Logout</button>
