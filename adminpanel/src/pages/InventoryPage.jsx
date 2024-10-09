@@ -2,6 +2,8 @@
 
 import React from "react";
 import { Typography, Paper, Box } from "@mui/material";
+import InventoryTracking from "../components/InventoryTracking";
+import { Inventory } from "@mui/icons-material";
 
 const InventoryPage = () => {
   return (
@@ -11,9 +13,9 @@ const InventoryPage = () => {
       </Typography>
       <Paper elevation={3} sx={{ padding: 3 }}>
         <Typography variant="h6">
-          Inventory tracking details go here...
+          
         </Typography>
-        {/* Add your inventory tracking content here */}
+        <InventoryTracking />
       </Paper>
     </Box>
   );
