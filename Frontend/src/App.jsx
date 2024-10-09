@@ -6,23 +6,31 @@ import Store from './components/Store';
 import Gift from './components/Gift';
 import Invest from './components/Invest';
 import AddToCartPage from './components/AddToCartPage';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import AuthPage from './components/AuthPage';
+import UserAccount from './components/UserAccount';
+import ProtectedRoute from './components/ProtectedRoute';
+import { UserProvider } from './context/UserContext.jsx';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function App() {
-  return (    
-    <Router>
-      <div className='bg-custom-gradient min-h-screen'>
-        <Navbar />
-        <Routes>
-          <Route path="/store" element={<Store />} />
-          <Route path="/gift" element={<Gift />} />
-          <Route path="/invest" element={<Invest />} />
-          <Route path="/add-to-cart" element={<AddToCartPage />} />
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </div>
-    </Router>
+  
      
+  return (
+    <UserProvider>
+      <Router>
+        <div className='bg-custom-gradient min-h-screen'>
+          <Navbar />
+          <Routes>
+            <Route path="/store" element={<ProtectedRoute element={Store} />} />
+            <Route path="/gift" element={<ProtectedRoute element={Gift} />} />
+            <Route path="/invest" element={<ProtectedRoute element={Invest} />} />
+            <Route path="/add-to-cart" element={<ProtectedRoute element={AddToCartPage} />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/account" element={<ProtectedRoute element={UserAccount} />} />
+            <Route path="/" element={<Home />} />
+          </Routes>
+        </div>
+      </Router>
+    </UserProvider>
   );
 }
