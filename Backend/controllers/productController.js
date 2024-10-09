@@ -11,11 +11,13 @@ const getProducts = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
-    const { title, rate, imageUrl, description } = req.body;
+    const { title, rate, category, stock, imageUrl,  description } = req.body;
 
     const product = new Product({
         title,
         rate,
+        category,
+        stock,
         imageUrl,
         description,
     });
@@ -27,5 +29,7 @@ const createProduct = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+
 
 export { getProducts, createProduct };
