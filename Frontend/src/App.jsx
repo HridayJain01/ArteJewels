@@ -7,10 +7,11 @@ import Gift from './components/Gift';
 import Invest from './components/Invest';
 import AddToCartPage from './components/AddToCartPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import AuthPage from './components/AuthPage';
 
 export default function App() {
   return (
-    <Router>
+    /*<Router>
       <div className='bg-custom-gradient min-h-screen'>
         <Navbar />
         <Routes>
@@ -21,6 +22,6 @@ export default function App() {
           <Route path="/" element={<Home />} />
         </Routes>
       </div>
-    </Router>
+    </Router>*/
   );
 }
