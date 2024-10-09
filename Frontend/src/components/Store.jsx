@@ -36,22 +36,37 @@ const Store = () => {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [totalValue, setTotalValue] = useState(0);
+    const [liked, setLiked] = useState(false);
+    const [cartCounts, setCartCounts] = useState({});
 
     const handleClose = () => setShow(false);
     const handleShow = (product) => {
         setSelectedProduct(product);
+        setLiked(false); // Reset liked state when showing a new product
         setShow(true);
     };
 
     const handleAddToCart = (item) => {
         setCartItems([...cartItems, item]);
         setTotalValue(totalValue + item.rate);
+        setCartCounts((prevCounts) => ({
+            ...prevCounts,
+            [item.title]: (prevCounts[item.title] || 0) + 1,
+        }));
     };
 
     const handleRemoveFromCart = (index) => {
         const itemToRemove = cartItems[index];
         setCartItems(cartItems.filter((_, i) => i !== index));
         setTotalValue(totalValue - itemToRemove.rate);
+        setCartCounts((prevCounts) => ({
+            ...prevCounts,
+            [itemToRemove.title]: prevCounts[itemToRemove.title] - 1,
+        }));
+    };
+
+    const toggleLike = () => {
+        setLiked(!liked);
     };
 
     return (
@@ -68,6 +83,7 @@ const Store = () => {
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
                                 handleAddToCart={handleAddToCart}
+                                count={cartCounts[item.title] || 0}
                             />
                         </div>
                     ))}
@@ -84,6 +100,7 @@ const Store = () => {
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
                                 handleAddToCart={handleAddToCart}
+                                count={cartCounts[item.title] || 0}
                             />
                         </div>
                     ))}
@@ -100,6 +117,7 @@ const Store = () => {
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
                                 handleAddToCart={handleAddToCart}
+                                count={cartCounts[item.title] || 0}
                             />
                         </div>
                     ))}
@@ -116,8 +134,18 @@ const Store = () => {
                             <h3 className="text-2xl font-bold mb-2">{selectedProduct?.title}</h3>
                             <p className="text-lg mb-2">${selectedProduct?.rate}</p>
                             <p className="text-md mb-4">{selectedProduct?.description}</p>
-                            <button className="bg-[#2a264e] text-white py-2 px-4 rounded mr-2">Add to Cart</button>
-                            <button className="bg-white text-red-600 py-2 px-4 border-red-600 rounded">Like</button>
+                            <button
+                                className="bg-[#2a264e] text-white py-2 px-4 rounded mr-2"
+                                onClick={() => handleAddToCart(selectedProduct)}
+                            >
+                                Add to Cart
+                            </button>
+                            <button
+                                className={`py-2 px-4 rounded ${liked ? 'bg-red-600 text-white' : 'bg-white text-red-600 border-red-600'}`}
+                                onClick={toggleLike}
+                            >
+                                {liked ? 'Liked' : 'Like'}
+                            </button>
                         </div>
                         <div className="w-full md:w-1/2 p-4">
                             <Carousel>

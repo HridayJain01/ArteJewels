@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 
-const JewelryCard = ({ title, rate, imageUrl, handleAddToCart }) => {
-    const [count, setCount] = useState(0);
+const JewelryCard = ({ title, rate, imageUrl, handleAddToCart, count }) => {
     const [liked, setLiked] = useState(false);
 
     const incrementCount = () => {
-        setCount(count + 1);
         handleAddToCart({ title, rate, imageUrl });
     };
 
@@ -54,6 +52,7 @@ JewelryCard.propTypes = {
     rate: PropTypes.number.isRequired,
     imageUrl: PropTypes.string.isRequired,
     handleAddToCart: PropTypes.func.isRequired,
+    count: PropTypes.number.isRequired,
 };
 
 export default JewelryCard;
