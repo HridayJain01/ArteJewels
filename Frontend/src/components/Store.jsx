@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Carousel } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import JewelryCard from './reusables/JewelryCard';
+import Cart from './Cart'; // Import the Cart component
 import homeEarringImage from '../assets/images/home-earring.png';
 import homePendantImage from '../assets/images/home-pendant.png';
 import homeDiamondImage from '../assets/images/home-diamonds.png';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+
+// Define your jewelry items
 const earringItems = [
     { title: 'Earring 1', rate: 120, imageUrl: homeEarringImage, description: 'A beautiful earring.' },
     { title: 'Earring 2', rate: 130, imageUrl: homeEarringImage, description: 'A stunning earring.' },
@@ -34,39 +37,56 @@ const diamondItems = [
 const Store = () => {
     const [show, setShow] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [liked, setLiked] = useState(false);
     const [cartItems, setCartItems] = useState([]);
     const [totalValue, setTotalValue] = useState(0);
-    const [liked, setLiked] = useState(false);
     const [cartCounts, setCartCounts] = useState({});
+    
 
+    
     const handleClose = () => setShow(false);
     const handleShow = (product) => {
         setSelectedProduct(product);
-        setLiked(false); // Reset liked state when showing a new product
+        setLiked(false);
         setShow(true);
     };
 
     const handleAddToCart = (item) => {
-        setCartItems([...cartItems, item]);
-        setTotalValue(totalValue + item.rate);
-        setCartCounts((prevCounts) => ({
-            ...prevCounts,
-            [item.title]: (prevCounts[item.title] || 0) + 1,
+        setCartItems((prev) => {
+            const existingItem = prev.find((i) => i.title === item.title);
+            if (!existingItem) {
+                return [...prev, item];
+            }
+            return prev;
+        });
+
+        setTotalValue((prev) => prev + item.rate);
+        setCartCounts((prev) => ({
+            ...prev,
+            [item.title]: (prev[item.title] || 0) + 1,
         }));
     };
 
-    const handleRemoveFromCart = (index) => {
-        const itemToRemove = cartItems[index];
-        setCartItems(cartItems.filter((_, i) => i !== index));
-        setTotalValue(totalValue - itemToRemove.rate);
-        setCartCounts((prevCounts) => ({
-            ...prevCounts,
-            [itemToRemove.title]: prevCounts[itemToRemove.title] - 1,
-        }));
-    };
+    const handleRemoveFromCart = (item) => {
+        if (cartCounts[item.title] > 0) {
+            setCartCounts((prevCounts) => {
+                const updatedCount = Math.max((prevCounts[item.title] || 0) - 1, 0);
+                return {
+                    ...prevCounts,
+                    [item.title]: updatedCount,
+                };
+            });
 
-    const toggleLike = () => {
-        setLiked(!liked);
+            setTotalValue((prev) => prev - item.rate);
+            // Optionally, remove the item from cartItems if count is zero
+            if (cartCounts[item.title] === 1) {
+                setCartItems((prev) => prev.filter((i) => i.title !== item.title));
+            }
+        }
+        const toggleLike = () => {
+            setLiked(!liked);
+        }
+    
     };
 
     return (
@@ -83,6 +103,7 @@ const Store = () => {
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
                                 handleAddToCart={handleAddToCart}
+                                handleRemoveFromCart={handleRemoveFromCart}
                                 count={cartCounts[item.title] || 0}
                             />
                         </div>
@@ -100,6 +121,7 @@ const Store = () => {
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
                                 handleAddToCart={handleAddToCart}
+                                handleRemoveFromCart={handleRemoveFromCart}
                                 count={cartCounts[item.title] || 0}
                             />
                         </div>
@@ -117,6 +139,7 @@ const Store = () => {
                                 rate={item.rate}
                                 imageUrl={item.imageUrl}
                                 handleAddToCart={handleAddToCart}
+                                handleRemoveFromCart={handleRemoveFromCart}
                                 count={cartCounts[item.title] || 0}
                             />
                         </div>
@@ -141,23 +164,33 @@ const Store = () => {
                                 Add to Cart
                             </button>
                             <button
-                                className={`py-2 px-4 rounded ${liked ? 'bg-red-600 text-white' : 'bg-white text-red-600 border-red-600'}`}
-                                onClick={toggleLike}
+                                className="bg-[#2a264e] text-white py-2 px-4 rounded mr-2"
+                                onClick={() => handleRemoveFromCart(selectedProduct)}
                             >
-                                {liked ? 'Liked' : 'Like'}
+                                Remove from Cart
                             </button>
+                            
+                            <h3>Added: {cartCounts[selectedProduct?.title] || 0}</h3>
                         </div>
                         <div className="w-full md:w-1/2 p-4">
                             <Carousel>
                                 <Carousel.Item>
                                     <img className="d-block w-100" src={selectedProduct?.imageUrl} alt={selectedProduct?.title} />
                                 </Carousel.Item>
-                                {/* Add more Carousel.Item components if there are multiple images */}
+                                {/* You can add more Carousel.Items if needed */}
                             </Carousel>
                         </div>
                     </div>
                 </Modal.Body>
             </Modal>
+
+            {/* Cart Component at the bottom */}
+            <Cart 
+                cartItems={cartItems} 
+                cartCounts={cartCounts} 
+                totalValue={totalValue} 
+                handleRemoveFromCart={handleRemoveFromCart} 
+            />
         </div>
     );
 };

@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import AuthPage from './components/AuthPage';
 
 export default function App() {
-  return (
+  return (    
     <Router>
       <div className='bg-custom-gradient min-h-screen'>
         <Navbar />
@@ -23,5 +23,6 @@ export default function App() {
         </Routes>
       </div>
     </Router>
+     
   );
 }

@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 
-const JewelryCard = ({ title, rate, imageUrl, handleAddToCart, count }) => {
+const JewelryCard = ({ title, rate, imageUrl, handleAddToCart, handleRemoveFromCart, count }) => {
     const [liked, setLiked] = useState(false);
 
     const incrementCount = () => {
         handleAddToCart({ title, rate, imageUrl });
+    };
+    const decrementCount = () => {
+        handleRemoveFromCart({ title, rate, imageUrl });
     };
 
     const toggleLike = () => {
@@ -35,6 +38,13 @@ const JewelryCard = ({ title, rate, imageUrl, handleAddToCart, count }) => {
                 >
                     Add to Cart
                 </button>
+                
+                <button
+                    className="py-2 px-4 rounded mt-4 bg-[#2a264e] text-white"
+                    onClick={decrementCount}
+                >
+                    Remove from Cart
+                </button>
                 <button
                     className={`py-2 px-4 rounded mt-4 ml-2 ${liked ? 'bg-red-600 text-white' : 'bg-white text-red-600 border-red-600'}`}
                     onClick={toggleLike}
@@ -52,6 +62,7 @@ JewelryCard.propTypes = {
     rate: PropTypes.number.isRequired,
     imageUrl: PropTypes.string.isRequired,
     handleAddToCart: PropTypes.func.isRequired,
+    handleRemoveFromCart: PropTypes.func.isRequired,
     count: PropTypes.number.isRequired,
 };
 
