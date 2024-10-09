@@ -1,6 +1,6 @@
 // src/components/InventoryTracking.js
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Box,
@@ -11,15 +11,37 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-
-const inventoryData = [
-  { product: "Ring A", stock: 15, status: "Low" },
-  { product: "Necklace B", stock: 25, status: "In Stock" },
-  { product: "Bracelet C", stock: 8, status: "Critical" },
-  { product: "Earrings D", stock: 50, status: "In Stock" },
-];
+import axios from "axios";
 
 const InventoryTracking = () => {
+  const [inventoryData, setInventoryData] = useState([]);
+
+  // Function to determine stock status
+  const getStatus = (stock) => {
+    if (stock <= 5) return "Critical";
+    if (stock <= 15) return "Low";
+    return "In Stock";
+  };
+
+  // Fetch product data from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:5001/api/products"); // Update with your actual endpoint
+        const products = response.data.map((product) => ({
+          product: product.title,
+          stock: product.stock,
+          status: getStatus(product.stock),
+        }));
+        setInventoryData(products);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>

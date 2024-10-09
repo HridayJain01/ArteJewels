@@ -1,6 +1,6 @@
 // src/components/SalesOverview.jsx
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Box } from "@mui/material";
 import {
   LineChart,
@@ -11,18 +11,46 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-const data = [
-  { name: "Mon", sales: 4000 },
-  { name: "Tue", sales: 3000 },
-  { name: "Wed", sales: 5000 },
-  { name: "Thu", sales: 2000 },
-  { name: "Fri", sales: 2780 },
-  { name: "Sat", sales: 1890 },
-  { name: "Sun", sales: 2390 },
-];
+import axios from "axios";
 
 const SalesOverview = () => {
+  const [salesData, setSalesData] = useState([]);
+
+  // Fetch orders from backend
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get("http://localhost:5001/api/orders");
+        const orders = response.data;
+        const totalsByDate = {};
+
+        // Calculate total sales per date
+        orders.forEach(order => {
+          const date = new Date(order.date).toLocaleDateString(); // Format date
+          if (!totalsByDate[date]) {
+            totalsByDate[date] = 0;
+          }
+          totalsByDate[date] += order.total; // Sum total for that date
+        });
+
+        // Convert totalsByDate to the required data format
+        const formattedData = Object.entries(totalsByDate).map(([date, total]) => ({
+          name: date,
+          sales: total,
+        }));
+
+        // Sort data by date
+        formattedData.sort((a, b) => new Date(a.name) - new Date(b.name));
+
+        setSalesData(formattedData);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
   return (
     <Box sx={{ height: "100%" }}>
       <Typography variant="h6" gutterBottom className="text-customPurple-900">
@@ -31,7 +59,7 @@ const SalesOverview = () => {
       <Box sx={{ height: 300 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={data}
+            data={salesData}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" />

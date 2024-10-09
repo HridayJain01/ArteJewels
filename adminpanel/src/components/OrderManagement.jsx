@@ -1,6 +1,5 @@
 // src/components/OrderManagement.jsx
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Typography, Box } from "@mui/material";
 import {
   BarChart,
@@ -11,15 +10,40 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-const data = [
-  { name: "Pending", orders: 12 },
-  { name: "Shipped", orders: 8 },
-  { name: "Delivered", orders: 15 },
-  { name: "Cancelled", orders: 2 },
-];
+import axios from "axios";
 
 const OrderManagement = () => {
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchOrderData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/api/orders');
+        const orders = response.data;
+
+        // Aggregate orders by status
+        const orderCounts = orders.reduce((acc, order) => {
+          acc[order.status] = (acc[order.status] || 0) + 1;
+          return acc;
+        }, {});
+
+        // Prepare data for the chart
+        const aggregatedData = [
+          { name: "Pending", orders: orderCounts.Pending || 0 },
+          { name: "Shipped", orders: orderCounts.Shipped || 0 },
+          { name: "Delivered", orders: orderCounts.Delivered || 0 },
+          { name: "Cancelled", orders: orderCounts.Cancelled || 0 },
+        ];
+
+        setChartData(aggregatedData);
+      } catch (error) {
+        console.error("Error fetching order data:", error);
+      }
+    };
+
+    fetchOrderData();
+  }, []);
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom className="text-customPurple-900">
@@ -27,15 +51,14 @@ const OrderManagement = () => {
       </Typography>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart
-          data={data}
+          data={chartData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="orders" fill="#4F264A" />{" "}
-          {/* Use a shade of customPurple */}
+          <Bar dataKey="orders" fill="#4F264A" /> {/* Use a shade of customPurple */}
         </BarChart>
       </ResponsiveContainer>
     </Box>

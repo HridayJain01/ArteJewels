@@ -1,12 +1,37 @@
 // src/components/PendingOrders.jsx
 
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const PendingOrders = ({ orders }) => {
-  console.log("Pending Orders:", orders); // Debugging line
+const shortenId = (id) => {
+  return id.substring(0, 4); // Adjust the length as needed
+};
 
-  if (!orders.length) return <p>No pending orders.</p>;
+const PendingOrders = () => {
+  const [orders, setOrders] = useState([]);
+  const [pendingOrders, setPendingOrders] = useState([]);
+
+  // Fetch all orders from the backend
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get("http://localhost:5001/api/orders");
+        setOrders(response.data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  // Filter pending orders whenever orders change
+  useEffect(() => {
+    const filteredOrders = orders.filter((order) => order.status === "Pending");
+    setPendingOrders(filteredOrders);
+  }, [orders]);
+
+  if (!pendingOrders.length) return <p>No pending orders.</p>;
 
   return (
     <div>
@@ -21,9 +46,9 @@ const PendingOrders = ({ orders }) => {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
-            <tr key={order.id}>
-              <td className="py-2 px-4 border-b">{order.id}</td>
+          {pendingOrders.map((order) => (
+            <tr key={order._id}>
+              <td className="py-2 px-4 border-b">{shortenId(order._id)}</td>
               <td className="py-2 px-4 border-b">{order.customer}</td>
               <td className="py-2 px-4 border-b">${order.total}</td>
               <td className="py-2 px-4 border-b">{order.status}</td>
@@ -33,21 +58,6 @@ const PendingOrders = ({ orders }) => {
       </table>
     </div>
   );
-};
-
-PendingOrders.propTypes = {
-  orders: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      customer: PropTypes.string.isRequired,
-      total: PropTypes.number.isRequired,
-      status: PropTypes.string.isRequired,
-    })
-  ),
-};
-
-PendingOrders.defaultProps = {
-  orders: [],
 };
 
 export default PendingOrders;

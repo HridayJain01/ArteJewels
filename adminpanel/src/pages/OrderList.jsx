@@ -69,20 +69,26 @@ const OrderList = () => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const response = await axios.put(`/api/orders/${id}`, { status: newStatus });
+      // Send PUT request to update order status in the backend
+      const response = await axios.put(`http://localhost:5001/api/orders/${id}`, { status: newStatus });
+      
+      // Update the local state with the updated order from the response
       const updatedOrder = response.data;
+  
+      // Update the orders state
       setOrders((prev) =>
         prev.map((order) => (order._id === id ? updatedOrder : order))
       );
-      setFilteredOrders(
-        statusFilter
-          ? orders.filter((order) => order.status === statusFilter)
-          : orders
+  
+      // Update filteredOrders state based on the current filter
+      setFilteredOrders((prev) =>
+        statusFilter ? prev.map((order) => (order._id === id ? updatedOrder : order)).filter((order) => order.status === statusFilter) : prev
       );
     } catch (error) {
       console.error("Error updating status:", error);
     }
   };
+  
 
   const pendingOrders = orders.filter((order) => order.status === "Pending");
   const shortenId = (id) => {
