@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Modal, Carousel } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import JewelryCard from './reusables/JewelryCard';
 import Cart from './Cart'; // Import the Cart component
 import axios from 'axios'; // Import axios for fetching data
+import { UserContext } from '../context/UserContext'; // Assuming you have user context
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Store = () => {
+    const { user } = useContext(UserContext); // Get the user from context
+    const customerName = user ? user.name : "Guest"; // Set customer name based on logged-in user
+
     const [show, setShow] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [liked, setLiked] = useState(false);
@@ -17,14 +21,13 @@ const Store = () => {
     const [pendantItems, setPendantItems] = useState([]);
     const [ringItems, setRingItems] = useState([]);
 
-    // Fetch data from API
+    // Fetch products from API
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axios.get('http://localhost:5001/api/products');
                 const products = response.data;
 
-                // Categorize the products based on category
                 const earrings = products.filter(item => item.category !== 'Ring' && item.category !== 'Bracelet');
                 const pendants = products.filter(item => item.category === 'Necklace');
                 const rings = products.filter(item => item.category === 'Ring');
@@ -39,6 +42,56 @@ const Store = () => {
 
         fetchData();
     }, []);
+
+    // Load cart from backend when the store page is loaded
+    useEffect(() => {
+        const loadCart = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/api/cart/${customerName}`);
+                const savedCart = response.data;
+
+                // Populate the cart state with the loaded cart
+                setCartItems(savedCart.items);
+                const counts = {};
+                savedCart.items.forEach(item => {
+                    counts[item.title] = item.quantity;
+                });
+                setCartCounts(counts);
+                setTotalValue(savedCart.total);
+            } catch (error) {
+                console.log('Error loading cart:', error);
+            }
+        };
+
+        loadCart();
+    }, [customerName]);
+
+    // Save cart to backend when cartItems or cartCounts change
+    useEffect(() => {
+        const saveCart = async () => {
+            if (cartItems.length === 0) return; // Skip saving if cart is empty
+
+            const cartData = {
+                customer: customerName,
+                items: cartItems.map(item => ({
+                    title: item.title,
+                    category: item.category,
+                    quantity: cartCounts[item.title],
+                    price: item.rate,
+                })),
+                total: totalValue,
+            };
+
+            try {
+                await axios.post('http://localhost:5001/api/cart/save', cartData);
+                console.log('Cart saved successfully.');
+            } catch (error) {
+                console.log('Failed to save cart:', error);
+            }
+        };
+
+        saveCart();
+    }, [cartItems, cartCounts, totalValue, customerName]);
 
     const handleClose = () => setShow(false);
     const handleShow = (product) => {
